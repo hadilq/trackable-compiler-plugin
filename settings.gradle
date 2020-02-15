@@ -1,0 +1,15 @@
+rootProject.name = 'trackable-compiler-plugin'
+include ':trackable-compiler-plugin'
+include ':trackable-compiler-plugin-annotations'
+include ':sample'
+
+// Only enable android project on JDK 8 until android tools catch up
+if (!JavaVersion.current().isJava9Compatible() && System.getenv("ANDROID_HOME") != null) {
+  include ':sample-android'
+}
+
+includeBuild('trackable-compiler-gradle-plugin') {
+  dependencySubstitution {
+    substitute module('com.github.hadilq.trackable:trackable-compiler-plugin-gradle') with project(':')
+  }
+}

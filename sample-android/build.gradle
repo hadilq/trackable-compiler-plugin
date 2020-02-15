@@ -1,0 +1,20 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'com.github.hadilq.trackable.trackable-gradle-plugin'
+
+android {
+  compileSdkVersion 29
+
+  sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+    test.java.srcDirs += 'src/test/kotlin'
+  }
+}
+
+dependencies {
+  implementation project(":sample")
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+  testImplementation "junit:junit:4.13"
+  testImplementation "com.google.truth:truth:1.0.1"
+}
