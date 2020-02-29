@@ -118,7 +118,6 @@ class TrackablePluginTest {
     }
 
     @Test
-    @Ignore
     fun `generate the getTrack method bytecode for extended interface`() {
         val result = compile(givenAnnotatedParentInterface(), givenTrackableClassExtendedParentInterface())
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
@@ -126,19 +125,18 @@ class TrackablePluginTest {
             result.generatedFiles
                 .first { it.exists() && it.isFile && it.name == "TrackableClass.class" }
         )
-        println(bytecode)
         assertThat(bytecode).isEqualTo(
             """|Compiled from "TrackableClass.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClass extends com.github.hadilq.trackable.compiler.test.Parent {
+               |public final class com.github.hadilq.trackable.compiler.test.TrackableClass implements com.github.hadilq.trackable.compiler.test.Parent {
                |  public com.github.hadilq.trackable.compiler.test.TrackableClass();
                |    Code:
                |       0: aload_0
-               |       1: invokespecial #8                  // Method com/github/hadilq/trackable/compiler/test/Parent."<init>":()V
+               |       1: invokespecial #10                 // Method java/lang/Object."<init>":()V
                |       4: return
                |
                |  public final java.lang.String getTrack();
                |    Code:
-               |       0: ldc           #14                 // String TrackableClass
+               |       0: ldc           #16                 // String TrackableClass
                |       2: areturn
                |}
                |""".trimMargin("|")
@@ -258,7 +256,7 @@ class TrackablePluginTest {
     )
 
     private fun givenAnnotatedParentClass(): SourceFile = kotlin(
-        "TrackableClassExtendedParent.kt",
+        "Parent.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
               |import com.github.hadilq.trackable.compiler.test.Trackable
@@ -269,7 +267,7 @@ class TrackablePluginTest {
     )
 
     private fun givenAnnotatedParentInterface(): SourceFile = kotlin(
-        "TrackableClassExtendedParent.kt",
+        "Parent.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
               |import com.github.hadilq.trackable.compiler.test.Trackable

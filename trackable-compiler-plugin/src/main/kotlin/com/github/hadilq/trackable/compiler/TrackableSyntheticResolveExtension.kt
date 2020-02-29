@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
-import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
+import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperClassifiers
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -64,7 +64,8 @@ class TrackableSyntheticResolveExtension(
         result: MutableSet<PropertyDescriptor>
     ) {
         if (!thisDescriptor.isTrackable() &&
-            thisDescriptor.getSuperInterfaces().any { it.isTrackable() }
+            thisDescriptor.getAllSuperClassifiers().none { it.isTrackable() } &&
+            thisDescriptor.getSuperInterfaces().none { it.isTrackable() }
         ) {
             log("Not trackable")
             return
