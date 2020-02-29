@@ -9,7 +9,7 @@ to log an event.
 ## Usage
 
 Include the gradle plugin in your project, define a `@Trackable` annotation, and apply it to any 
-classes that you wish to track.
+classes that you wish to track or on their parent class or interface.
 
 ```kotlin
 @Retention(BINARY)
