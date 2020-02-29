@@ -6,10 +6,17 @@ import org.junit.Test
 class AndroidTrackableClassTest {
 
     @Test
-    fun `trackable by reflection`() {
+    fun `AndroidTrackableClass trackable by reflection`() {
         val trackable = AndroidTrackableClass()
         val method = trackable.javaClass.getMethod("getTrack")
         assertThat(method.invoke(trackable)).isEqualTo("AndroidTrackableClass")
+    }
+
+    @Test
+    fun `AndroidTrackableWithTrackItWithClass trackable by reflection`() {
+        val trackable = AndroidTrackableWithTrackItWithClass()
+        val method = trackable.javaClass.getMethod("getTrack")
+        assertThat(method.invoke(trackable)).isEqualTo("NotAndroidTrackableWithTrackItWithClass")
     }
 
 //    @Test

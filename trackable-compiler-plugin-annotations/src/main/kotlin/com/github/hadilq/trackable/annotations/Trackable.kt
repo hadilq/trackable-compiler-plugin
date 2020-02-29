@@ -24,4 +24,4 @@ import kotlin.annotation.AnnotationTarget.CLASS
  */
 @Retention(BINARY)
 @Target(CLASS)
-annotation class Trackable
+annotation class Trackable(val trackWith: String = "")

@@ -6,10 +6,17 @@ import org.junit.Test
 class SmokeTest {
 
     @Test
-    fun `trackable by reflection`() {
+    fun `TrackableClass trackable by reflection`() {
         val trackable = TrackableClass()
         val method = trackable.javaClass.getMethod("getTrack")
         assertThat(method.invoke(trackable)).isEqualTo("TrackableClass")
+    }
+
+    @Test
+    fun `TrackableClassTrackItWith trackable by reflection`() {
+        val trackable = TrackableWithTrackItWithClass()
+        val method = trackable.javaClass.getMethod("getTrack")
+        assertThat(method.invoke(trackable)).isEqualTo("NotTrackableWithTrackItWithClass")
     }
 
 //    @Test

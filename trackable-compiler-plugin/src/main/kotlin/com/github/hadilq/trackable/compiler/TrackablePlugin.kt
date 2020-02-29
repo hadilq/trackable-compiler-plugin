@@ -72,12 +72,12 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
 
         ExpressionCodegenExtension.registerExtensionAsFirst(
             project,
-            TrackableCodegenExtension(messageCollector, Name.identifier(propertyName), fqRedactedAnnotation)
+            TrackableCodegenExtension( Name.identifier(propertyName))
         )
 
         SyntheticResolveExtension.registerExtensionAsFirst(
             project,
-            TrackableSyntheticResolveExtension(Name.identifier(propertyName), fqRedactedAnnotation)
+            TrackableSyntheticResolveExtension(messageCollector, Name.identifier(propertyName), fqRedactedAnnotation)
         )
     }
 }

@@ -1,12 +1,10 @@
 trackable-compiler-plugin
 ========================
 
-It's an under development plugin. more features would be added but currently only the followings are supported.
+It's an under development plugin. More features would be added but currently only the followings are supported.
 Overall, a Kotlin compiler plugin that generates trackable `val track : String` implementations for classes that
 annotated by `@Trackable`. It's useful when your classes are obfuscated in the product and you need their names
 to log an event.
-
-Inspired by the [`redacted-compiler-plugin`](https://github.com/ZacSweers/redacted-compiler-plugin) extension.
 
 ## Usage
 
@@ -22,12 +20,24 @@ annotation class Trackable
 class TrackableClass
 ```
 
-When you call `TrackableClass().track` you must receive the name of the class, which is `TrackableClass`. Currently
-this is just achieved by reflection! Direct call to this property would throw `Unresolved reference: track`!
+When you call `TrackableClass().track` you must receive the name of the class, which is `TrackableClass`, Or
+if you want to change that string 
+
+```kotlin
+@Retention(BINARY)
+@Target(CLASS)
+annotation class Trackable
+
+@Trackable(trackWith = "Something else!")
+class TrackableClass
+```
+
+So the `track` property would return `Something else!`. Currently this is just achieved by reflection! Direct 
+call to this property would throw `Unresolved reference: track`!
 
 ## Installation
 
-Not published yet but it should be by applying the gradle plugin as follows.
+Not published yet but it should be by applying the gradle plugin as follows in the future.
 
 ```gradle
 buildscript {
