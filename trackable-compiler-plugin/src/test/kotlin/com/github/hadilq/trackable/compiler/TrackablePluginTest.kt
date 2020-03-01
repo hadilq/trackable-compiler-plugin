@@ -6,7 +6,6 @@ import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.JvmTarget
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -32,6 +31,7 @@ class TrackablePluginTest {
            |annotation class Trackable(val trackWith: String = "")
            |""".trimMargin("|")
     )
+    private val trackablePackage = "com.github.hadilq.trackable.compiler.test"
 
     @Test
     fun `generate the getTrack method`() {
@@ -187,6 +187,16 @@ class TrackablePluginTest {
     }
 
     @Test
+    fun `generate and use the getTrack method run`() {
+        val result = compile(givenTrackableClass(), givenTrackableClassTestToRun())
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+        val directory =
+            result.generatedFiles.first { it.exists() && it.parentFile.name == "META-INF" }.parentFile.parentFile
+        val output = runFiles(directory, "$trackablePackage.TrackableClassTestKt")
+        assertThat(output).isEqualTo("TrackableClass\n")
+    }
+
+    @Test
     fun `generate data class`() {
         val result = compile(
             kotlin(
@@ -300,14 +310,22 @@ class TrackablePluginTest {
               |""".trimMargin("|")
     )
 
+    private fun givenTrackableClassTestToRun(): SourceFile = kotlin(
+        "TrackableClassTest.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |fun main(args: Array<String>?) {
+              |    System.out.print(TrackableClass().track)
+              |}
+              |""".trimMargin("|")
+    )
+
     private fun prepareCompilation(vararg sourceFiles: SourceFile): KotlinCompilation {
         return KotlinCompilation()
             .apply {
                 workingDir = temporaryFolder.root
                 compilerPlugins = listOf<ComponentRegistrar>(
-                    TrackableComponentRegistrar(
-                        "com.github.hadilq.trackable.compiler.test.Trackable"
-                    )
+                    TrackableComponentRegistrar("${trackablePackage}.Trackable")
                 )
                 inheritClassPath = true
                 sources = sourceFiles.asList() + trackable
@@ -321,6 +339,9 @@ class TrackablePluginTest {
         return prepareCompilation(*sourceFiles).compile()
     }
 
+    private fun runFiles(directory: File, mainClass: String) =
+        runCommand("java -cp ${directory.absolutePath} $mainClass")
+
     private fun fileBytecode(file: File) = runCommand("javap -c X $file")
 
     private fun runCommand(command: String): String {
@@ -332,6 +353,11 @@ class TrackablePluginTest {
             sb.appendln(line)
         }
         input.close()
+        val error = BufferedReader(InputStreamReader(p.errorStream))
+        while (run { line = error.readLine();line } != null) {
+            println("Error of running: $command -> $line")
+        }
+        error.close()
         return sb.toString()
     }
 }

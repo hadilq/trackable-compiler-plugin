@@ -82,7 +82,7 @@ class TrackableCodegenExtension(
     }
 }
 
-private fun ClassDescriptor.findProperty(propertyName: Name): PropertyDescriptor =
+private fun ClassDescriptor.findProperty(propertyName: Name): PropertyDescriptor? =
     unsubstitutedMemberScope
         .getContributedVariables(propertyName, WHEN_GET_ALL_DESCRIPTORS)
-        .first()
+        .firstOrNull()
