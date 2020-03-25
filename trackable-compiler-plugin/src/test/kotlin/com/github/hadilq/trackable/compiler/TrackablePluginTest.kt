@@ -19,9 +19,11 @@ class TrackablePluginTest {
     @JvmField
     var temporaryFolder: TemporaryFolder = TemporaryFolder()
 
+    private val trackablePackage = TRACKABLE_ANNOTATION.split(".").filter { it != "Trackable" }.joinToString(".")
+
     private val trackable = kotlin(
         "Trackable.kt",
-        """|package com.github.hadilq.trackable.compiler.test
+        """|package $trackablePackage
            |
            |import kotlin.annotation.AnnotationRetention.BINARY
            |import kotlin.annotation.AnnotationTarget.CLASS
@@ -31,7 +33,6 @@ class TrackablePluginTest {
            |annotation class Trackable(val trackWith: String = "")
            |""".trimMargin("|")
     )
-    private val trackablePackage = "com.github.hadilq.trackable.compiler.test"
 
     @Test
     fun `generate the getTrack method`() {
@@ -145,54 +146,43 @@ class TrackablePluginTest {
 
     @Test
     fun `generate and use the getTrack method`() {
-        val result = compile(givenTrackableClass(), givenTrackableClassTest())
+        val result = compile(givenTrackableClass(), givenTrackableClassTestToRun())
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
     }
 
     @Test
     fun `generate and use the getTrack method bytecode`() {
-        val result = compile(givenTrackableClass(), givenTrackableClassTest())
+        val result = compile(givenTrackableClass(), givenTrackableClassTestToRun())
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
         val bytecode = fileBytecode(
             result.generatedFiles
-                .first { it.exists() && it.isFile && it.name == "TrackableClassTest.class" }
+                .first { it.exists() && it.isFile && it.name == "TrackableClassTestKt.class" }
         )
+        println(bytecode)
         assertThat(bytecode).isEqualTo(
             """|Compiled from "TrackableClassTest.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClassTest {
-               |  public static final com.github.hadilq.trackable.compiler.test.TrackableClassTest INSTANCE;
-               |
-               |  static {};
+               |public final class com.github.hadilq.trackable.compiler.test.TrackableClassTestKt {
+               |  public static final void main(java.lang.String[]);
                |    Code:
-               |       0: new           #2                  // class com/github/hadilq/trackable/compiler/test/TrackableClassTest
-               |       3: dup
-               |       4: invokespecial #25                 // Method "<init>":()V
-               |       7: astore_0
-               |       8: aload_0
-               |       9: putstatic     #27                 // Field INSTANCE:Lcom/github/hadilq/trackable/compiler/test/TrackableClassTest;
-               |      12: new           #29                 // class com/github/hadilq/trackable/compiler/test/TrackableClass
-               |      15: dup
-               |      16: invokespecial #30                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass."<init>":()V
-               |      19: invokevirtual #34                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass.getTrack:()Ljava/lang/String;
-               |      22: astore_1
-               |      23: iconst_0
-               |      24: istore_2
-               |      25: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
-               |      28: aload_1
-               |      29: invokevirtual #46                 // Method java/io/PrintStream.println:(Ljava/lang/Object;)V
-               |      32: return
+               |       0: getstatic     #13                 // Field java/lang/System.out:Ljava/io/PrintStream;
+               |       3: new           #15                 // class com/github/hadilq/trackable/compiler/test/TrackableClass
+               |       6: dup
+               |       7: invokespecial #19                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass."<init>":()V
+               |      10: invokevirtual #23                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass.getTrack:()Ljava/lang/String;
+               |      13: invokevirtual #29                 // Method java/io/PrintStream.print:(Ljava/lang/String;)V
+               |      16: return
                |}
                |""".trimMargin("|")
         )
     }
 
     @Test
-    fun `generate and use the getTrack method run`() {
+    fun `generate and use the getTrack method then run`() {
         val result = compile(givenTrackableClass(), givenTrackableClassTestToRun())
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
         val directory =
             result.generatedFiles.first { it.exists() && it.parentFile.name == "META-INF" }.parentFile.parentFile
-        val output = runFiles(directory, "$trackablePackage.TrackableClassTestKt")
+        val output = runFiles(directory, "com.github.hadilq.trackable.compiler.test.TrackableClassTestKt")
         assertThat(output).isEqualTo("TrackableClass\n")
     }
 
@@ -203,7 +193,7 @@ class TrackablePluginTest {
                 "TrackableDataClass.kt",
                 """|package com.github.hadilq.trackable.compiler.test
                    |
-                   |import com.github.hadilq.trackable.compiler.test.Trackable
+                   |import ${trackablePackage}.Trackable
                    |
                    |@Trackable
                    |data class TrackableDataClass(private val firstParam: String = "")
@@ -221,7 +211,7 @@ class TrackablePluginTest {
                 "TrackableDataClass.kt",
                 """|package com.github.hadilq.trackable.compiler.test
                    |
-                   |import com.github.hadilq.trackable.compiler.test.Trackable
+                   |import ${trackablePackage}.Trackable
                    |
                    |@Trackable
                    |inline class TrackableDataClass(private val firstParam: String = "")
@@ -236,7 +226,7 @@ class TrackablePluginTest {
         "TrackableClass.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import ${trackablePackage}.Trackable
               |
               |@Trackable
               |class TrackableClass 
@@ -247,7 +237,7 @@ class TrackablePluginTest {
         "TrackableClass.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import ${trackablePackage}.Trackable
               |import com.github.hadilq.trackable.compiler.test.Parent
               |
               |class TrackableClass : Parent()
@@ -258,7 +248,7 @@ class TrackablePluginTest {
         "TrackableClass.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import ${trackablePackage}.Trackable
               |import com.github.hadilq.trackable.compiler.test.Parent
               |
               |class TrackableClass : Parent
@@ -269,7 +259,7 @@ class TrackablePluginTest {
         "Parent.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import ${trackablePackage}.Trackable
               |
               |@Trackable
               |open class Parent
@@ -280,7 +270,7 @@ class TrackablePluginTest {
         "Parent.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import ${trackablePackage}.Trackable
               |
               |@Trackable
               |interface Parent
@@ -291,22 +281,10 @@ class TrackablePluginTest {
         "TrackableClass.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import ${trackablePackage}.Trackable
               |
               |@Trackable(trackWith = "NotTrackableClass!")
               |class TrackableClass 
-              |""".trimMargin("|")
-    )
-
-    private fun givenTrackableClassTest(): SourceFile = kotlin(
-        "TrackableClassTest.kt",
-        """   |package com.github.hadilq.trackable.compiler.test
-              |
-              |object TrackableClassTest {
-              |    init {
-              |        println(TrackableClass().track)
-              |    }
-              |}
               |""".trimMargin("|")
     )
 
@@ -325,7 +303,7 @@ class TrackablePluginTest {
             .apply {
                 workingDir = temporaryFolder.root
                 compilerPlugins = listOf<ComponentRegistrar>(
-                    TrackableComponentRegistrar("${trackablePackage}.Trackable")
+                    TrackableComponentRegistrar()
                 )
                 inheritClassPath = true
                 sources = sourceFiles.asList() + trackable

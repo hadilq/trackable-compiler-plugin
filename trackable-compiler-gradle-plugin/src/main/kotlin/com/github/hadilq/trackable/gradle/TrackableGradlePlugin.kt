@@ -18,9 +18,6 @@ package com.github.hadilq.trackable.gradle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-internal const val DEFAULT_ANNOTATION = "com.github.hadilq.trackable.annotations.Trackable"
-internal const val DEFAULT_PROPERTY_NAME = "track"
-
 class TrackableGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         target.extensions.create("trackable", TrackablePluginExtension::class.java)
@@ -28,7 +25,5 @@ class TrackableGradlePlugin : Plugin<Project> {
 }
 
 open class TrackablePluginExtension {
-    var trackableAnnotation: String = DEFAULT_ANNOTATION
     var enabled: Boolean = true
-    var propertyName: String = DEFAULT_PROPERTY_NAME
 }

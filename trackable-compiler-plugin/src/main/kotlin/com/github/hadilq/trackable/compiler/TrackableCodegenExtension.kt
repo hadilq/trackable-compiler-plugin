@@ -15,43 +15,24 @@
  */
 package com.github.hadilq.trackable.compiler
 
-import org.jetbrains.annotations.NotNull
-import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
-import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
-import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.LOGGING
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
-import org.jetbrains.kotlin.cli.common.messages.MessageUtil
-import org.jetbrains.kotlin.codegen.ClassBuilder
 import org.jetbrains.kotlin.codegen.FunctionCodegen
 import org.jetbrains.kotlin.codegen.ImplementationBodyCodegen
-import org.jetbrains.kotlin.codegen.context.FieldOwnerContext
 import org.jetbrains.kotlin.codegen.extensions.ExpressionCodegenExtension
-import org.jetbrains.kotlin.codegen.state.GenerationState
-import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation.WHEN_GET_ALL_DESCRIPTORS
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin
-import org.jetbrains.kotlin.resolve.jvm.diagnostics.OtherOrigin
-import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.org.objectweb.asm.Opcodes
-import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
 /**
  * A compiler codegen extension that generates custom method for the classes with @Trackable annotation.
  */
-class TrackableCodegenExtension(
-    private val propertyName: Name
-) : ExpressionCodegenExtension {
+open class TrackableCodegenExtension : ExpressionCodegenExtension {
 
     override fun generateClassSyntheticParts(codegen: ImplementationBodyCodegen) {
         val classBuilder = codegen.v
@@ -60,7 +41,7 @@ class TrackableCodegenExtension(
         val container = codegen.descriptor
         if (container.kind != ClassKind.CLASS && container.kind != ClassKind.OBJECT) return
 
-        val property = container.findProperty(propertyName) ?: return
+        val property = container.findProperty(Name.identifier(TRACK_PROPERTY_NAME)) ?: return
         val trackableProperty = property as? TrackableProperty ?: return
         val trackableGetter = trackableProperty.propertyGetter
 

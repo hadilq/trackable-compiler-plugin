@@ -27,8 +27,6 @@ import org.jetbrains.kotlin.com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.extensions.ProjectExtensionDescriptor
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 
 @AutoService(ComponentRegistrar::class)
@@ -40,14 +38,10 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
     // https://github.com/tschuchortdev/kotlin-compile-testing/issues/34
     @TestOnly
     internal constructor(
-        trackableAnnotation: String,
-        enabled: Boolean = true,
-        propertyName: String = "track"
+        enabled: Boolean = true
     ) : this() {
         testConfiguration = CompilerConfiguration().apply {
             put(KEY_ENABLED, enabled)
-            put(KEY_PROPERTY_NAME, propertyName)
-            put(KEY_TRACKABLE_ANNOTATION, trackableAnnotation)
         }
     }
 
@@ -62,22 +56,20 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
             CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY,
             MessageCollector.NONE
         )
+
         val messageCollector = testConfiguration?.get(
             CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY,
             realMessageCollector
         ) ?: realMessageCollector
-        val propertyName = checkNotNull(actualConfiguration[KEY_PROPERTY_NAME])
-        val trackableAnnotation = checkNotNull(actualConfiguration[KEY_TRACKABLE_ANNOTATION])
-        val fqRedactedAnnotation = FqName(trackableAnnotation)
 
         ExpressionCodegenExtension.registerExtensionAsFirst(
             project,
-            TrackableCodegenExtension( Name.identifier(propertyName))
+            TrackableCodegenExtension()
         )
 
         SyntheticResolveExtension.registerExtensionAsFirst(
             project,
-            TrackableSyntheticResolveExtension(messageCollector, Name.identifier(propertyName), fqRedactedAnnotation)
+            TrackableSyntheticResolveExtension(messageCollector::report)
         )
     }
 }

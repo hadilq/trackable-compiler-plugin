@@ -1,0 +1,18 @@
+<idea-plugin>
+    <id>com.github.hadilq.trackable.trackable-gradle-intellij-plugin</id>
+    <name>Trackable Gradle Intellij Plugin</name>
+    <vendor email="hadilq.dev@gmail.com" url="http://github.com/hadilq/trackable-compiler-plugin">Hadilq</vendor>
+    
+    <description><![CDATA[
+    This plugin simple help to resolve `track` property of trackable classes.<br>
+    <em>Trackable</em>
+    ]]></description>
+    
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    
+    <extensions>
+        <expressionCodegenExtension implementation="com.github.hadilq.trackable.compiler.idea.TrackableCodegenExtension"/>
+        <syntheticResolveExtension implementation="com.github.hadilq.trackable.compiler.idea.TrackableSyntheticIDEResolveExtension"/>
+    </extensions>
+</idea-plugin>

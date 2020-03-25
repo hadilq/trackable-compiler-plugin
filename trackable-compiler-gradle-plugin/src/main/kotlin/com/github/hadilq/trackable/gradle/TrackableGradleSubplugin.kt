@@ -29,8 +29,6 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 internal const val ENABLED = "enabled"
-internal const val PROPERTY_NAME = "propertyName"
-internal const val TRACKABLE_ANNOTATION = "trackableAnnotation"
 
 @AutoService(KotlinGradleSubplugin::class)
 class TrackableGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
@@ -57,31 +55,21 @@ class TrackableGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
     ): List<SubpluginOption> {
         val extension =
             project.extensions.findByType(TrackablePluginExtension::class.java) ?: TrackablePluginExtension()
-        val annotation = extension.trackableAnnotation
 
-        // Default annotation is used, so add it as a dependency
-        if (annotation == DEFAULT_ANNOTATION) {
-            project.dependencies.add(
-                "implementation",
-                "com.github.hadilq.trackable:trackable-compiler-plugin-annotations:$VERSION"
-            )
-        }
+        project.dependencies.add(
+            "implementation",
+            "com.github.hadilq.trackable:trackable-gradle-intellij-plugin:$VERSION"
+        )
+
+        project.dependencies.add(
+            "implementation",
+            "com.github.hadilq.trackable:trackable-compiler-plugin-annotations:$VERSION"
+        )
 
         val enabled = extension.enabled
 
-        variantData?.apply {
-            val variant = unwrapVariant(this)
-            if (variant != null) {
-                project.logger.debug("Resolving enabled status for android variant ${variant.name}")
-            } else {
-                project.logger.lifecycle("Unable to resolve variant type for $this. Falling back to default behavior of '$enabled'")
-            }
-        }
-
         return listOf(
-            SubpluginOption(key = ENABLED, value = enabled.toString()),
-            SubpluginOption(key = PROPERTY_NAME, value = extension.propertyName),
-            SubpluginOption(key = TRACKABLE_ANNOTATION, value = annotation)
+            SubpluginOption(key = ENABLED, value = enabled.toString())
         )
     }
 }

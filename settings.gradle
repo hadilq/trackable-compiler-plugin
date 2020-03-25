@@ -1,5 +1,6 @@
 rootProject.name = 'trackable-compiler-plugin'
 include ':trackable-compiler-plugin'
+include 'trackable-gradle-intellij-plugin'
 include ':trackable-compiler-plugin-annotations'
 include ':sample'
 
@@ -13,3 +14,4 @@ includeBuild('trackable-compiler-gradle-plugin') {
     substitute module('com.github.hadilq.trackable:trackable-compiler-plugin-gradle') with project(':')
   }
 }
+

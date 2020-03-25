@@ -17,7 +17,6 @@ package com.github.hadilq.trackable.compiler
 
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageUtil
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -29,8 +28,6 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.PropertyDescriptorImpl
 import org.jetbrains.kotlin.descriptors.impl.PropertyGetterDescriptorImpl
-import org.jetbrains.kotlin.incremental.components.NoLookupLocation
-import org.jetbrains.kotlin.incremental.record
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -38,22 +35,18 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperClassifiers
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
-import org.jetbrains.kotlin.resolve.lazy.LazyClassContext
-import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider
 import org.jetbrains.kotlin.resolve.source.getPsi
 import java.util.ArrayList
 
 /**
  * A [SyntheticResolveExtension] that create descriptor of property of [propertyName].
  */
-class TrackableSyntheticResolveExtension(
-    private val messageCollector: MessageCollector,
-    private val propertyName: Name,
-    private val fqTrackableAnnotation: FqName
+open class TrackableSyntheticResolveExtension(
+    private val log: (CompilerMessageSeverity, String, CompilerMessageLocation?) -> Unit
 ) : SyntheticResolveExtension {
 
     private fun log(message: String) {
-        messageCollector.report(
+        log(
             CompilerMessageSeverity.LOGGING,
             "Trackable: $message",
             CompilerMessageLocation.create(null)
@@ -67,6 +60,16 @@ class TrackableSyntheticResolveExtension(
         fromSupertypes: ArrayList<PropertyDescriptor>,
         result: MutableSet<PropertyDescriptor>
     ) {
+        if (thisDescriptor.isData || thisDescriptor.isInline) {
+            log("data or inline class")
+            val psi = thisDescriptor.source.getPsi()
+            val location = MessageUtil.psiElementToMessageLocation(psi)
+            log(
+                CompilerMessageSeverity.ERROR,
+                DATA_INLINE_CLASS_ERROR_MESSAGE,
+                location
+            )
+        }
         if (!thisDescriptor.isTrackable() &&
             thisDescriptor.getAllSuperClassifiers().none { it.isTrackable() } &&
             thisDescriptor.getSuperInterfaces().none { it.isTrackable() }
@@ -74,31 +77,21 @@ class TrackableSyntheticResolveExtension(
             log("Not trackable")
             return
         }
-        if (thisDescriptor.isData || thisDescriptor.isInline) {
-            log("data or inline class")
-            val psi = thisDescriptor.source.getPsi()
-            val location = MessageUtil.psiElementToMessageLocation(psi)
-            messageCollector.report(
-                CompilerMessageSeverity.ERROR,
-                DATA_INLINE_CLASS_ERROR_MESSAGE,
-                location
-            )
-            return
-        }
 
         val returnValue: String =
-            thisDescriptor.annotationTrackItWith(fqTrackableAnnotation) ?: thisDescriptor.name.asString()
+            thisDescriptor.annotationTrackItWith(FqName(TRACKABLE_ANNOTATION))
+                ?: thisDescriptor.name.asString()
 
         result += trackableProperty(
             thisDescriptor,
-            propertyName,
-            "get${propertyName.asString().capitalize()}",
+            Name.identifier(TRACK_PROPERTY_NAME),
+            "get${TRACK_PROPERTY_NAME.capitalize()}",
             returnValue
         )
     }
 
     private fun Annotated.isTrackable(): Boolean =
-        annotations.hasAnnotation(fqTrackableAnnotation)
+        annotations.hasAnnotation(FqName(TRACKABLE_ANNOTATION))
 }
 
 private fun trackableProperty(
