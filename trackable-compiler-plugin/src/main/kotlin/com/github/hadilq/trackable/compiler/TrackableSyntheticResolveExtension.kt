@@ -29,8 +29,6 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.PropertyDescriptorImpl
 import org.jetbrains.kotlin.descriptors.impl.PropertyGetterDescriptorImpl
-import org.jetbrains.kotlin.incremental.components.NoLookupLocation
-import org.jetbrains.kotlin.incremental.record
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -38,8 +36,6 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperClassifiers
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
-import org.jetbrains.kotlin.resolve.lazy.LazyClassContext
-import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider
 import org.jetbrains.kotlin.resolve.source.getPsi
 import java.util.ArrayList
 
@@ -67,10 +63,7 @@ class TrackableSyntheticResolveExtension(
         fromSupertypes: ArrayList<PropertyDescriptor>,
         result: MutableSet<PropertyDescriptor>
     ) {
-        if (!thisDescriptor.isTrackable() &&
-            thisDescriptor.getAllSuperClassifiers().none { it.isTrackable() } &&
-            thisDescriptor.getSuperInterfaces().none { it.isTrackable() }
-        ) {
+        if (!thisDescriptor.isTrackable(fqTrackableAnnotation)) {
             log("Not trackable")
             return
         }
@@ -96,10 +89,15 @@ class TrackableSyntheticResolveExtension(
             returnValue
         )
     }
-
-    private fun Annotated.isTrackable(): Boolean =
-        annotations.hasAnnotation(fqTrackableAnnotation)
 }
+
+private fun ClassDescriptor.isTrackable(fqTrackableAnnotation: FqName): Boolean =
+    isAnnotatedWithTrackable(fqTrackableAnnotation) ||
+        getAllSuperClassifiers().any { it.isAnnotatedWithTrackable(fqTrackableAnnotation) } ||
+        getSuperInterfaces().any { it.isAnnotatedWithTrackable(fqTrackableAnnotation) }
+
+private fun Annotated.isAnnotatedWithTrackable(fqTrackableAnnotation: FqName): Boolean =
+    annotations.hasAnnotation(fqTrackableAnnotation)
 
 private fun trackableProperty(
     thisDescriptor: ClassDescriptor,
