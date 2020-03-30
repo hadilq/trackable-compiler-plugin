@@ -19,10 +19,8 @@ class AndroidTrackableClassTest {
         assertThat(method.invoke(trackable)).isEqualTo("NotAndroidTrackableWithTrackItWithClass")
     }
 
-//    @Test
-//    fun trackable() {
-//        assertThat(AndroidTrackableClass().track).isEqualTo("AndroidTrackableClass")
-//    }
-
-
+    @Test
+    fun trackable() {
+        assertThat(AndroidTrackableClass().track()).isEqualTo("AndroidTrackableClass")
+    }
 }

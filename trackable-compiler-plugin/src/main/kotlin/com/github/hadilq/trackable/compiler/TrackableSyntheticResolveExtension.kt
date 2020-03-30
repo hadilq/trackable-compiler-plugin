@@ -61,6 +61,9 @@ class TrackableSyntheticResolveExtension(
         fromSupertypes: List<SimpleFunctionDescriptor>,
         result: MutableCollection<SimpleFunctionDescriptor>
     ) {
+        if (name != getterName) {
+            return
+        }
         if (!thisDescriptor.isTrackable(fqTrackableAnnotation)) {
             log("Not trackable")
             return
@@ -106,7 +109,7 @@ private fun trackableFunction(
     thisDescriptor: ClassDescriptor,
     getterName: Name,
     returnValue: String
-) = object : TrackableGetterProperty, SimpleFunctionDescriptorImpl(
+) = object : TrackableGetter, SimpleFunctionDescriptorImpl(
     thisDescriptor,
     null,
     Annotations.EMPTY,
@@ -134,7 +137,7 @@ inline fun <reified R> Annotations.findAnnotationConstantValue(annotationFqName:
         annotation.allValueArguments.entries.singleOrNull { it.key.asString() == property }?.value?.value
     } as? R
 
-interface TrackableGetterProperty {
+interface TrackableGetter {
     val returnValue: String
 }
 

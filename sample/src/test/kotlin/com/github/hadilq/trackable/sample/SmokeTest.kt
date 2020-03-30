@@ -19,8 +19,8 @@ class SmokeTest {
         assertThat(method.invoke(trackable)).isEqualTo("NotTrackableWithTrackItWithClass")
     }
 
-//    @Test
-//    fun trackable() {
-//        assertThat(TrackableClass().track()).isEqualTo("TrackableClass")
-//    }
+    @Test
+    fun trackable() {
+        assertThat(TrackableClass().track()).isEqualTo("TrackableClass")
+    }
 }

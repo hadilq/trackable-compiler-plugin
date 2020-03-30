@@ -44,7 +44,7 @@ class TrackableCodegenExtension(
         if (container.kind != ClassKind.CLASS && container.kind != ClassKind.OBJECT) return
 
         val function = container.findGetter(getterName) ?: return
-        val trackableGetter = function as? TrackableGetterProperty ?: return
+        val trackableGetter = function as? TrackableGetter ?: return
 
         val mv = classBuilder.newMethod(
             JvmDeclarationOrigin.NO_ORIGIN,
