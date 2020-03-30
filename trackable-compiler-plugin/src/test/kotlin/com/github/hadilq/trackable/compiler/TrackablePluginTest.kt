@@ -56,7 +56,7 @@ class TrackablePluginTest {
                |       1: invokespecial #9                  // Method java/lang/Object."<init>":()V
                |       4: return
                |
-               |  public final java.lang.String getTrack();
+               |  public final java.lang.String track();
                |    Code:
                |       0: ldc           #15                 // String TrackableClass
                |       2: areturn
@@ -82,7 +82,7 @@ class TrackablePluginTest {
                |       1: invokespecial #11                 // Method java/lang/Object."<init>":()V
                |       4: return
                |
-               |  public final java.lang.String getTrack();
+               |  public final java.lang.String track();
                |    Code:
                |       0: ldc           #16                 // String NotTrackableClass!
                |       2: areturn
@@ -108,7 +108,7 @@ class TrackablePluginTest {
                |       1: invokespecial #8                  // Method com/github/hadilq/trackable/compiler/test/Parent."<init>":()V
                |       4: return
                |
-               |  public final java.lang.String getTrack();
+               |  public final java.lang.String track();
                |    Code:
                |       0: ldc           #14                 // String TrackableClass
                |       2: areturn
@@ -134,7 +134,7 @@ class TrackablePluginTest {
                |       1: invokespecial #10                 // Method java/lang/Object."<init>":()V
                |       4: return
                |
-               |  public final java.lang.String getTrack();
+               |  public final java.lang.String track();
                |    Code:
                |       0: ldc           #16                 // String TrackableClass
                |       2: areturn
@@ -173,7 +173,7 @@ class TrackablePluginTest {
                |      12: new           #29                 // class com/github/hadilq/trackable/compiler/test/TrackableClass
                |      15: dup
                |      16: invokespecial #30                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass."<init>":()V
-               |      19: invokevirtual #34                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass.getTrack:()Ljava/lang/String;
+               |      19: invokevirtual #34                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass.track:()Ljava/lang/String;
                |      22: astore_1
                |      23: iconst_0
                |      24: istore_2
@@ -304,7 +304,7 @@ class TrackablePluginTest {
               |
               |object TrackableClassTest {
               |    init {
-              |        println(TrackableClass().track)
+              |        println(TrackableClass().track())
               |    }
               |}
               |""".trimMargin("|")
@@ -315,7 +315,7 @@ class TrackablePluginTest {
         """   |package com.github.hadilq.trackable.compiler.test
               |
               |fun main(args: Array<String>?) {
-              |    System.out.print(TrackableClass().track)
+              |    System.out.print(TrackableClass().track())
               |}
               |""".trimMargin("|")
     )

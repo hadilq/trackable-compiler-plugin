@@ -23,12 +23,11 @@ import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.Modality
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
+import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
-import org.jetbrains.kotlin.descriptors.impl.PropertyDescriptorImpl
-import org.jetbrains.kotlin.descriptors.impl.PropertyGetterDescriptorImpl
+import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -37,14 +36,13 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperClassifiers
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperInterfaces
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 import org.jetbrains.kotlin.resolve.source.getPsi
-import java.util.ArrayList
 
 /**
- * A [SyntheticResolveExtension] that create descriptor of property of [propertyName].
+ * A [SyntheticResolveExtension] that create descriptor of [getterName].
  */
 class TrackableSyntheticResolveExtension(
     private val messageCollector: MessageCollector,
-    private val propertyName: Name,
+    private val getterName: Name,
     private val fqTrackableAnnotation: FqName
 ) : SyntheticResolveExtension {
 
@@ -56,12 +54,12 @@ class TrackableSyntheticResolveExtension(
         )
     }
 
-    override fun generateSyntheticProperties(
+    override fun generateSyntheticMethods(
         thisDescriptor: ClassDescriptor,
         name: Name,
         bindingContext: BindingContext,
-        fromSupertypes: ArrayList<PropertyDescriptor>,
-        result: MutableSet<PropertyDescriptor>
+        fromSupertypes: List<SimpleFunctionDescriptor>,
+        result: MutableCollection<SimpleFunctionDescriptor>
     ) {
         if (!thisDescriptor.isTrackable(fqTrackableAnnotation)) {
             log("Not trackable")
@@ -82,12 +80,17 @@ class TrackableSyntheticResolveExtension(
         val returnValue: String =
             thisDescriptor.annotationTrackItWith(fqTrackableAnnotation) ?: thisDescriptor.name.asString()
 
-        result += trackableProperty(
+        result += trackableFunction(
             thisDescriptor,
-            propertyName,
-            "get${propertyName.asString().capitalize()}",
+            getterName,
             returnValue
         )
+    }
+
+    override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> = when {
+        thisDescriptor.isTrackable(fqTrackableAnnotation) && !thisDescriptor.isData && !thisDescriptor.isInline ->
+            listOf(getterName)
+        else -> emptyList()
     }
 }
 
@@ -99,57 +102,25 @@ private fun ClassDescriptor.isTrackable(fqTrackableAnnotation: FqName): Boolean 
 private fun Annotated.isAnnotatedWithTrackable(fqTrackableAnnotation: FqName): Boolean =
     annotations.hasAnnotation(fqTrackableAnnotation)
 
-private fun trackableProperty(
+private fun trackableFunction(
     thisDescriptor: ClassDescriptor,
-    propertyName: Name,
-    getterName: String,
+    getterName: Name,
     returnValue: String
-) = object : TrackableProperty, PropertyDescriptorImpl(
+) = object : TrackableGetterProperty, SimpleFunctionDescriptorImpl(
     thisDescriptor,
     null,
     Annotations.EMPTY,
-    Modality.FINAL,
-    Visibilities.PUBLIC,
-    false,
-    propertyName,
-    CallableMemberDescriptor.Kind.DECLARATION,
-    thisDescriptor.source,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
+    getterName,
+    CallableMemberDescriptor.Kind.SYNTHESIZED,
+    thisDescriptor.source
 ) {
-    override val propertyGetter: TrackableGetterProperty
-        get() = getterDescriptor(this, getterName, returnValue)
-}.apply {
-    initialize(propertyGetter as PropertyGetterDescriptorImpl, null)
-    setType(thisDescriptor.builtIns.stringType, emptyList(), thisDescriptor.thisAsReceiverParameter, null)
-}
-
-private fun getterDescriptor(
-    propertyDescriptor: PropertyDescriptor,
-    getterName: String,
-    returnValue: String
-) = object : TrackableGetterProperty, PropertyGetterDescriptorImpl(
-    propertyDescriptor,
-    Annotations.EMPTY,
-    Modality.FINAL,
-    Visibilities.PUBLIC,
-    false,
-    false,
-    false,
-    CallableMemberDescriptor.Kind.DECLARATION,
-    null,
-    propertyDescriptor.source
-) {
-    override val getterName: String
-        get() = getterName
     override val returnValue: String
         get() = returnValue
 }.apply {
-    initialize(propertyDescriptor.builtIns.stringType)
+    initialize(
+        null, thisDescriptor.thisAsReceiverParameter, emptyList(),
+        emptyList(), thisDescriptor.builtIns.stringType, Modality.FINAL, Visibilities.PUBLIC
+    )
 }
 
 internal fun DeclarationDescriptor.annotationTrackItWith(fqTrackableAnnotation: FqName): String? =
@@ -163,12 +134,7 @@ inline fun <reified R> Annotations.findAnnotationConstantValue(annotationFqName:
         annotation.allValueArguments.entries.singleOrNull { it.key.asString() == property }?.value?.value
     } as? R
 
-interface TrackableProperty {
-    val propertyGetter: TrackableGetterProperty
-}
-
 interface TrackableGetterProperty {
-    val getterName: String
     val returnValue: String
 }
 

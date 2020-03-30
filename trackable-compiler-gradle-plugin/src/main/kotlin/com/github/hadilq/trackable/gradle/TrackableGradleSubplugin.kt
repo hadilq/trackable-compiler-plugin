@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 internal const val ENABLED = "enabled"
-internal const val PROPERTY_NAME = "propertyName"
+internal const val GETTER_NAME = "getterName"
 internal const val TRACKABLE_ANNOTATION = "trackableAnnotation"
 
 @AutoService(KotlinGradleSubplugin::class)
@@ -80,7 +80,7 @@ class TrackableGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
 
         return listOf(
             SubpluginOption(key = ENABLED, value = enabled.toString()),
-            SubpluginOption(key = PROPERTY_NAME, value = extension.propertyName),
+            SubpluginOption(key = GETTER_NAME, value = extension.getterName),
             SubpluginOption(key = TRACKABLE_ANNOTATION, value = annotation)
         )
     }

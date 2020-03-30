@@ -46,7 +46,7 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
     ) : this() {
         testConfiguration = CompilerConfiguration().apply {
             put(KEY_ENABLED, enabled)
-            put(KEY_PROPERTY_NAME, propertyName)
+            put(KEY_GETTER_NAME, propertyName)
             put(KEY_TRACKABLE_ANNOTATION, trackableAnnotation)
         }
     }
@@ -66,18 +66,18 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
             CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY,
             realMessageCollector
         ) ?: realMessageCollector
-        val propertyName = checkNotNull(actualConfiguration[KEY_PROPERTY_NAME])
+        val getterName = checkNotNull(actualConfiguration[KEY_GETTER_NAME])
         val trackableAnnotation = checkNotNull(actualConfiguration[KEY_TRACKABLE_ANNOTATION])
         val fqRedactedAnnotation = FqName(trackableAnnotation)
 
         ExpressionCodegenExtension.registerExtensionAsFirst(
             project,
-            TrackableCodegenExtension( Name.identifier(propertyName))
+            TrackableCodegenExtension(Name.identifier(getterName))
         )
 
         SyntheticResolveExtension.registerExtensionAsFirst(
             project,
-            TrackableSyntheticResolveExtension(messageCollector, Name.identifier(propertyName), fqRedactedAnnotation)
+            TrackableSyntheticResolveExtension(messageCollector, Name.identifier(getterName), fqRedactedAnnotation)
         )
     }
 }

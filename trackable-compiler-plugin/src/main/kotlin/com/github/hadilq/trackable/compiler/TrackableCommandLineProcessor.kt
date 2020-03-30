@@ -23,11 +23,11 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.CompilerConfigurationKey
 
 internal const val ENABLED = "enabled"
-internal const val PROPERTY_NAME = "propertyName"
+internal const val GETTER_NAME = "getterName"
 internal const val TRACKABLE_ANNOTATION = "trackableAnnotation"
 
 internal val KEY_ENABLED = CompilerConfigurationKey<Boolean>(ENABLED)
-internal val KEY_PROPERTY_NAME = CompilerConfigurationKey<String>(PROPERTY_NAME)
+internal val KEY_GETTER_NAME = CompilerConfigurationKey<String>(GETTER_NAME)
 internal val KEY_TRACKABLE_ANNOTATION = CompilerConfigurationKey<String>(TRACKABLE_ANNOTATION)
 
 @AutoService(CommandLineProcessor::class)
@@ -38,7 +38,7 @@ class RedactedCommandLineProcessor : CommandLineProcessor {
     override val pluginOptions: Collection<AbstractCliOption> =
         listOf(
             CliOption(ENABLED, "<true | false>", "", required = true),
-            CliOption(PROPERTY_NAME, "String", "", required = true),
+            CliOption(GETTER_NAME, "String", "", required = true),
             CliOption(TRACKABLE_ANNOTATION, "String", "", required = true)
         )
 
@@ -48,7 +48,7 @@ class RedactedCommandLineProcessor : CommandLineProcessor {
         configuration: CompilerConfiguration
     ) = when (option.optionName) {
         ENABLED -> configuration.put(KEY_ENABLED, value.toBoolean())
-        PROPERTY_NAME -> configuration.put(KEY_PROPERTY_NAME, value)
+        GETTER_NAME -> configuration.put(KEY_GETTER_NAME, value)
         TRACKABLE_ANNOTATION -> configuration.put(KEY_TRACKABLE_ANNOTATION, value)
         else -> error("Unknown plugin option: ${option.optionName}")
     }
