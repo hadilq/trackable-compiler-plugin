@@ -17,7 +17,6 @@ package com.github.hadilq.trackable.compiler
 
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageUtil
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -40,15 +39,15 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 /**
  * A [SyntheticResolveExtension] that create descriptor of [getterName].
  */
-class TrackableSyntheticResolveExtension(
-    private val messageCollector: MessageCollector,
+open class TrackableSyntheticResolveExtension(
+    private val report: (CompilerMessageSeverity, String, CompilerMessageLocation?) -> Unit,
     private val getterName: Name,
     private val fqTrackableAnnotation: FqName,
     private val trackItWith: String
 ) : SyntheticResolveExtension {
 
     private fun log(message: String) {
-        messageCollector.report(
+        report(
             CompilerMessageSeverity.LOGGING,
             "Trackable: $message",
             CompilerMessageLocation.create(null)
@@ -73,7 +72,7 @@ class TrackableSyntheticResolveExtension(
             log("data or inline class")
             val psi = thisDescriptor.source.getPsi()
             val location = MessageUtil.psiElementToMessageLocation(psi)
-            messageCollector.report(
+            report(
                 CompilerMessageSeverity.ERROR,
                 DATA_INLINE_CLASS_ERROR_MESSAGE,
                 location

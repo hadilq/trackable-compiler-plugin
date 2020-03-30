@@ -32,7 +32,7 @@ import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 /**
  * A compiler codegen extension that generates custom method for the classes with @Trackable annotation.
  */
-class TrackableCodegenExtension(
+open class TrackableCodegenExtension(
     private val getterName: Name
 ) : ExpressionCodegenExtension {
 

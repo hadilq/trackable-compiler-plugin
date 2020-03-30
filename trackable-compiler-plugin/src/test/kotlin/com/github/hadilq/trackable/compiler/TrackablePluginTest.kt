@@ -144,49 +144,6 @@ class TrackablePluginTest {
     }
 
     @Test
-    fun `generate and use the getTrack method`() {
-        val result = compile(givenTrackableClass(), givenTrackableClassTest())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-    }
-
-    @Test
-    fun `generate and use the getTrack method bytecode`() {
-        val result = compile(givenTrackableClass(), givenTrackableClassTest())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        val bytecode = fileBytecode(
-            result.generatedFiles
-                .first { it.exists() && it.isFile && it.name == "TrackableClassTest.class" }
-        )
-        assertThat(bytecode).isEqualTo(
-            """|Compiled from "TrackableClassTest.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClassTest {
-               |  public static final com.github.hadilq.trackable.compiler.test.TrackableClassTest INSTANCE;
-               |
-               |  static {};
-               |    Code:
-               |       0: new           #2                  // class com/github/hadilq/trackable/compiler/test/TrackableClassTest
-               |       3: dup
-               |       4: invokespecial #25                 // Method "<init>":()V
-               |       7: astore_0
-               |       8: aload_0
-               |       9: putstatic     #27                 // Field INSTANCE:Lcom/github/hadilq/trackable/compiler/test/TrackableClassTest;
-               |      12: new           #29                 // class com/github/hadilq/trackable/compiler/test/TrackableClass
-               |      15: dup
-               |      16: invokespecial #30                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass."<init>":()V
-               |      19: invokevirtual #34                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass.track:()Ljava/lang/String;
-               |      22: astore_1
-               |      23: iconst_0
-               |      24: istore_2
-               |      25: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
-               |      28: aload_1
-               |      29: invokevirtual #46                 // Method java/io/PrintStream.println:(Ljava/lang/Object;)V
-               |      32: return
-               |}
-               |""".trimMargin("|")
-        )
-    }
-
-    @Test
     fun `generate and use the getTrack method run`() {
         val result = compile(givenTrackableClass(), givenTrackableClassTestToRun())
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
@@ -295,18 +252,6 @@ class TrackablePluginTest {
               |
               |@Trackable(trackWith = "NotTrackableClass!")
               |class TrackableClass 
-              |""".trimMargin("|")
-    )
-
-    private fun givenTrackableClassTest(): SourceFile = kotlin(
-        "TrackableClassTest.kt",
-        """   |package com.github.hadilq.trackable.compiler.test
-              |
-              |object TrackableClassTest {
-              |    init {
-              |        println(TrackableClass().track())
-              |    }
-              |}
               |""".trimMargin("|")
     )
 

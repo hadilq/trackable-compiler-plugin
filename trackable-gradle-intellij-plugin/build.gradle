@@ -1,0 +1,27 @@
+apply plugin: "org.jetbrains.kotlin.jvm"
+apply plugin: 'org.jetbrains.kotlin.kapt'
+apply plugin: "com.vanniktech.maven.publish"
+apply plugin: 'org.jetbrains.intellij'
+
+group ext.GROUP
+version ext.VERSION_NAME
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation project(':trackable-compiler-plugin')
+  compileOnly "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
+  testImplementation 'junit:junit:4.13'
+}
+
+intellij {
+  version 'IC-2019.3'
+  pluginName 'trackable-gradle-intellij-plugin'
+}
+patchPluginXml {
+  changeNotes """
+      Initial release.<br>
+      <em>Trackable</em>"""
+}
