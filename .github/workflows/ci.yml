@@ -19,6 +19,7 @@ jobs:
         with:
           java-version: ${{ matrix.ci_java_version }}
       - name: Build with Gradle
+        timeout-minutes: 5
         run: ./gradlew clean check --stacktrace
       - name: Reclaim memory
         run: ./gradlew --stop && jps|grep -E 'KotlinCompileDaemon|GradleDaemon'| awk '{print $1}'| xargs kill -9
