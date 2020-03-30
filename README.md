@@ -21,8 +21,8 @@ annotation class Trackable(val trackWith: String = "")
 class TrackableClass
 ```
 
-When you call `TrackableClass().track` you must receive the name of the class, which is `TrackableClass`, Or
-if you want to change that string 
+When you call `TrackableClass().track()` you must receive the name of the class, which is `TrackableClass`, Or
+if you want to change that string use `trackWith` params as below. 
 
 ```kotlin
 @Retention(BINARY)
@@ -33,8 +33,7 @@ annotation class Trackable(val trackWith: String = "")
 class TrackableClass
 ```
 
-So the `track` property would return `Something else!`. Currently this is just achieved by reflection! Direct 
-call to this property would throw `Unresolved reference: track`!
+So the `track` method would return `Something else!`.
 
 ## Installation
 
@@ -62,12 +61,15 @@ trackable {
   // dependencies if you define your own!
   trackableAnnotation = "com.github.hadilq.trackable.annotations.Trackable" // Default
 
+  // In case of a custom annotation above you can change the name of `trackWith` param by this variable.
+  trackWith = "trackWith" // Default
+
   // Define whether or not this is enabled. Useful if you want to gate this behind a dynamic
   // build configuration.
   enabled = true // Default
 
   // Define the name of generated method.
-  propertyName = "track" // Default
+  getterName = "track" // Default
 }
 ```
 
