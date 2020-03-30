@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 internal const val ENABLED = "enabled"
 internal const val GETTER_NAME = "getterName"
 internal const val TRACKABLE_ANNOTATION = "trackableAnnotation"
+internal const val TRACK_WITH = "trackWith"
 
 @AutoService(KotlinGradleSubplugin::class)
 class TrackableGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
@@ -60,12 +61,13 @@ class TrackableGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
         val annotation = extension.trackableAnnotation
 
         // Default annotation is used, so add it as a dependency
-        if (annotation == DEFAULT_ANNOTATION) {
+        val trackWith = if (annotation == DEFAULT_ANNOTATION) {
             project.dependencies.add(
                 "implementation",
                 "com.github.hadilq.trackable:trackable-compiler-plugin-annotations:$VERSION"
             )
-        }
+            DEFAULT_TRACK_WITH
+        } else extension.trackWith
 
         val enabled = extension.enabled
 
@@ -81,7 +83,8 @@ class TrackableGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
         return listOf(
             SubpluginOption(key = ENABLED, value = enabled.toString()),
             SubpluginOption(key = GETTER_NAME, value = extension.getterName),
-            SubpluginOption(key = TRACKABLE_ANNOTATION, value = annotation)
+            SubpluginOption(key = TRACKABLE_ANNOTATION, value = annotation),
+            SubpluginOption(key = TRACK_WITH, value = trackWith)
         )
     }
 }

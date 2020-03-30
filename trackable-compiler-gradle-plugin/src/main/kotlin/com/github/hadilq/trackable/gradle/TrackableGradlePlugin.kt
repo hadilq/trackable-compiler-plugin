@@ -20,6 +20,7 @@ import org.gradle.api.Project
 
 internal const val DEFAULT_ANNOTATION = "com.github.hadilq.trackable.annotations.Trackable"
 internal const val DEFAULT_GETTER_NAME = "track"
+internal const val DEFAULT_TRACK_WITH = "trackWith"
 
 class TrackableGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -31,4 +32,5 @@ open class TrackablePluginExtension {
     var trackableAnnotation: String = DEFAULT_ANNOTATION
     var enabled: Boolean = true
     var getterName: String = DEFAULT_GETTER_NAME
+    var trackWith: String = DEFAULT_TRACK_WITH
 }

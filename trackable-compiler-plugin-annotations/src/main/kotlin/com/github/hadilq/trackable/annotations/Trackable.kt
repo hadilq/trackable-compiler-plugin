@@ -19,8 +19,7 @@ import kotlin.annotation.AnnotationRetention.BINARY
 import kotlin.annotation.AnnotationTarget.CLASS
 
 /**
- * An annotation to indicate that a particular class should be trackable by `getTrack()`
- * implementations.
+ * An annotation to indicate that a particular class should be trackable by `tack()` implementations.
  */
 @Retention(BINARY)
 @Target(CLASS)

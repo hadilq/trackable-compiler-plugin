@@ -25,10 +25,12 @@ import org.jetbrains.kotlin.config.CompilerConfigurationKey
 internal const val ENABLED = "enabled"
 internal const val GETTER_NAME = "getterName"
 internal const val TRACKABLE_ANNOTATION = "trackableAnnotation"
+internal const val TRACK_WITH = "trackWith"
 
 internal val KEY_ENABLED = CompilerConfigurationKey<Boolean>(ENABLED)
 internal val KEY_GETTER_NAME = CompilerConfigurationKey<String>(GETTER_NAME)
 internal val KEY_TRACKABLE_ANNOTATION = CompilerConfigurationKey<String>(TRACKABLE_ANNOTATION)
+internal val KEY_TRACK_WITH = CompilerConfigurationKey<String>(TRACK_WITH)
 
 @AutoService(CommandLineProcessor::class)
 class RedactedCommandLineProcessor : CommandLineProcessor {
@@ -39,7 +41,8 @@ class RedactedCommandLineProcessor : CommandLineProcessor {
         listOf(
             CliOption(ENABLED, "<true | false>", "", required = true),
             CliOption(GETTER_NAME, "String", "", required = true),
-            CliOption(TRACKABLE_ANNOTATION, "String", "", required = true)
+            CliOption(TRACKABLE_ANNOTATION, "String", "", required = true),
+            CliOption(TRACK_WITH, "String", "", required = true)
         )
 
     override fun processOption(
@@ -50,6 +53,7 @@ class RedactedCommandLineProcessor : CommandLineProcessor {
         ENABLED -> configuration.put(KEY_ENABLED, value.toBoolean())
         GETTER_NAME -> configuration.put(KEY_GETTER_NAME, value)
         TRACKABLE_ANNOTATION -> configuration.put(KEY_TRACKABLE_ANNOTATION, value)
+        TRACK_WITH -> configuration.put(KEY_TRACK_WITH, value)
         else -> error("Unknown plugin option: ${option.optionName}")
     }
 }

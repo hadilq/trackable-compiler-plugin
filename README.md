@@ -1,20 +1,21 @@
 trackable-compiler-plugin
 ========================
 
-It's an under development plugin. More features would be added but currently only the followings are supported.
-Overall, a Kotlin compiler plugin that generates trackable `val track : String` implementations for classes that
-annotated by `@Trackable`. It's useful when your classes are obfuscated in the product and you need their names
-to log an event.
+A Kotlin compiler plugin that generates trackable method `fun track() : String` implementations for classes that
+annotated by `@Trackable`. This method would return the class name String. Also for classes that their parent
+annotated with `@Trackable`, this method would be generated with current class name. However, if you want to override
+the return String you can use `@Trackable(trackWith = "Something else!")` to change the return value. It's useful when
+your classes are obfuscated in the product and you need their names to log an event.
 
 ## Usage
 
-Include the gradle plugin in your project, define a `@Trackable` annotation, and apply it to any 
-classes that you wish to track or on their parent class or interface.
+Include the gradle plugin in your project, apply `@Trackable` annotation to any classes that you wish to track or
+on their parent class or interfaces.
 
 ```kotlin
 @Retention(BINARY)
 @Target(CLASS)
-annotation class Trackable
+annotation class Trackable(val trackWith: String = "")
 
 @Trackable
 class TrackableClass
@@ -26,7 +27,7 @@ if you want to change that string
 ```kotlin
 @Retention(BINARY)
 @Target(CLASS)
-annotation class Trackable
+annotation class Trackable(val trackWith: String = "")
 
 @Trackable(trackWith = "Something else!")
 class TrackableClass

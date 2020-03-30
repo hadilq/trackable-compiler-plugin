@@ -43,7 +43,8 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 class TrackableSyntheticResolveExtension(
     private val messageCollector: MessageCollector,
     private val getterName: Name,
-    private val fqTrackableAnnotation: FqName
+    private val fqTrackableAnnotation: FqName,
+    private val trackItWith: String
 ) : SyntheticResolveExtension {
 
     private fun log(message: String) {
@@ -81,7 +82,7 @@ class TrackableSyntheticResolveExtension(
         }
 
         val returnValue: String =
-            thisDescriptor.annotationTrackItWith(fqTrackableAnnotation) ?: thisDescriptor.name.asString()
+            thisDescriptor.annotationTrackItWith(fqTrackableAnnotation, trackItWith) ?: thisDescriptor.name.asString()
 
         result += trackableFunction(
             thisDescriptor,
@@ -126,8 +127,8 @@ private fun trackableFunction(
     )
 }
 
-internal fun DeclarationDescriptor.annotationTrackItWith(fqTrackableAnnotation: FqName): String? =
-    annotations.trackableTrackName(fqTrackableAnnotation, ANNOTATION_TRACK_WITH)
+internal fun DeclarationDescriptor.annotationTrackItWith(fqTrackableAnnotation: FqName, trackItWith: String): String? =
+    annotations.trackableTrackName(fqTrackableAnnotation, trackItWith)?.takeIf { it.isNotBlank() }
 
 internal fun Annotations.trackableTrackName(fqTrackableAnnotation: FqName, trackItWith: String): String? =
     findAnnotationConstantValue(fqTrackableAnnotation, trackItWith)
@@ -142,4 +143,3 @@ interface TrackableGetter {
 }
 
 const val DATA_INLINE_CLASS_ERROR_MESSAGE = "@Trackable is not supported on data and inline classes!"
-const val ANNOTATION_TRACK_WITH = "trackWith"

@@ -42,12 +42,14 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
     internal constructor(
         trackableAnnotation: String,
         enabled: Boolean = true,
-        propertyName: String = "track"
+        propertyName: String = "track",
+        trackWith: String = "trackWith"
     ) : this() {
         testConfiguration = CompilerConfiguration().apply {
             put(KEY_ENABLED, enabled)
             put(KEY_GETTER_NAME, propertyName)
             put(KEY_TRACKABLE_ANNOTATION, trackableAnnotation)
+            put(KEY_TRACK_WITH, trackWith)
         }
     }
 
@@ -68,6 +70,7 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
         ) ?: realMessageCollector
         val getterName = checkNotNull(actualConfiguration[KEY_GETTER_NAME])
         val trackableAnnotation = checkNotNull(actualConfiguration[KEY_TRACKABLE_ANNOTATION])
+        val trackWith = checkNotNull(actualConfiguration[KEY_TRACK_WITH])
         val fqRedactedAnnotation = FqName(trackableAnnotation)
 
         ExpressionCodegenExtension.registerExtensionAsFirst(
@@ -77,7 +80,12 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
 
         SyntheticResolveExtension.registerExtensionAsFirst(
             project,
-            TrackableSyntheticResolveExtension(messageCollector, Name.identifier(getterName), fqRedactedAnnotation)
+            TrackableSyntheticResolveExtension(
+                messageCollector,
+                Name.identifier(getterName),
+                fqRedactedAnnotation,
+                trackWith
+            )
         )
     }
 }
