@@ -9,6 +9,8 @@ annotated with `@Trackable`, this method would be generated with current class n
 the return String you can use `@Trackable(trackWith = "Something else!")` to change the return value. It's useful when
 your classes are obfuscated in the product and you need their names to log an event.
 
+**NOTICE** it would not resolve the generated method in the IDE, but will resolve it on build-time.
+
 ## Usage
 
 Include the gradle plugin in your project, apply `@Trackable` annotation to any classes that you wish to track or
