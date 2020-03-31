@@ -1,3 +1,5 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.hadilq.trackable/trackable-compiler-plugin-gradle/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.hadilq.trackable/trackable-compiler-plugin-gradle)
+
 trackable-compiler-plugin
 ========================
 
@@ -52,6 +54,7 @@ apply plugin: 'com.github.hadilq.trackable.trackable-gradle-plugin'
 And that's it! The default configuration will add the `-annotations` artifact (which has a
 `@Trackable` annotation you can use) and wire it all automatically. Just annotate what you want to
 your trackable class.
+Snapshots of the development version are available in [Sonatype's snapshots repository](https://oss.sonatype.org/content/repositories/snapshots/).
 
 You can configure custom behavior with properties on the `trackable` extension.
 
