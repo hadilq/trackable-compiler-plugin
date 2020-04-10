@@ -48,11 +48,12 @@ TaskProvider copyVersionTemplatesProvider = tasks.register("copyVersionTemplates
     expand('projectVersion': "${project.version}")
     filteringCharset = 'UTF-8'
 }
-//endregion
 
 compileKotlin {
     dependsOn copyVersionTemplatesProvider
 }
+clean.finalizedBy(copyVersionTemplatesProvider)
+//endregion
 
 gradlePlugin {
     plugins {

@@ -48,7 +48,7 @@ class TrackableCodegenExtension(
 
         val mv = classBuilder.newMethod(
             JvmDeclarationOrigin.NO_ORIGIN,
-            Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL,
+            Opcodes.ACC_PUBLIC or Opcodes.ACC_OPEN,
             getterName.asString(),
             "()Ljava/lang/String;",
             null,

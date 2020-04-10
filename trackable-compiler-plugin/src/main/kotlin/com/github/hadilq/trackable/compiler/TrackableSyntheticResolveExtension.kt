@@ -123,7 +123,7 @@ private fun trackableFunction(
 }.apply {
     initialize(
         null, thisDescriptor.thisAsReceiverParameter, emptyList(),
-        emptyList(), thisDescriptor.builtIns.stringType, Modality.FINAL, Visibilities.PUBLIC
+        emptyList(), thisDescriptor.builtIns.stringType, Modality.OPEN, Visibilities.PUBLIC
     )
 }
 

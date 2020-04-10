@@ -40,160 +40,54 @@ class TrackablePluginTest {
     }
 
     @Test
-    fun `generate the getTrack method bytecode`() {
-        val result = compile(givenTrackableClass())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        val bytecode = fileBytecode(
-            result.generatedFiles
-                .first { it.exists() && it.isFile && it.name == "TrackableClass.class" }
+    fun `generate the getTrack method bytecode then run`() {
+        val result = compile(
+            givenTrackableClass(),
+            givenTrackableClassTestToRun()
         )
-        assertThat(bytecode).isEqualTo(
-            """|Compiled from "TrackableClass.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClass {
-               |  public com.github.hadilq.trackable.compiler.test.TrackableClass();
-               |    Code:
-               |       0: aload_0
-               |       1: invokespecial #9                  // Method java/lang/Object."<init>":()V
-               |       4: return
-               |
-               |  public final java.lang.String track();
-               |    Code:
-               |       0: ldc           #15                 // String TrackableClass
-               |       2: areturn
-               |}
-               |""".trimMargin("|")
-        )
+        assertExecutionResult(result)
     }
 
     @Test
-    fun `generate the getTrack method bytecode with annotated track`() {
-        val result = compile(givenTrackableClassWithAnnotatedTrack())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        val bytecode = fileBytecode(
-            result.generatedFiles
-                .first { it.exists() && it.isFile && it.name == "TrackableClass.class" }
+    fun `generate the getTrack method bytecode with annotated track then run`() {
+        val result = compile(
+            givenTrackableClassWithAnnotatedTrack(),
+            givenTrackableClassTestToRun()
         )
-        assertThat(bytecode).isEqualTo(
-            """|Compiled from "TrackableClass.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClass {
-               |  public com.github.hadilq.trackable.compiler.test.TrackableClass();
-               |    Code:
-               |       0: aload_0
-               |       1: invokespecial #11                 // Method java/lang/Object."<init>":()V
-               |       4: return
-               |
-               |  public final java.lang.String track();
-               |    Code:
-               |       0: ldc           #16                 // String NotTrackableClass!
-               |       2: areturn
-               |}
-               |""".trimMargin("|")
-        )
+        assertExecutionResult(result, "NotTrackableClass!")
     }
 
     @Test
-    fun `generate the getTrack method bytecode for extended class`() {
-        val result = compile(givenAnnotatedParentClass(), givenTrackableClassExtendedParent())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        val bytecode = fileBytecode(
-            result.generatedFiles
-                .first { it.exists() && it.isFile && it.name == "TrackableClass.class" }
+    fun `generate the getTrack method bytecode for extended class then run`() {
+        val result = compile(
+            givenTrackableClassExtendedParent(),
+            givenTrackableClassTestToRun()
         )
-        assertThat(bytecode).isEqualTo(
-            """|Compiled from "TrackableClass.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClass extends com.github.hadilq.trackable.compiler.test.Parent {
-               |  public com.github.hadilq.trackable.compiler.test.TrackableClass();
-               |    Code:
-               |       0: aload_0
-               |       1: invokespecial #8                  // Method com/github/hadilq/trackable/compiler/test/Parent."<init>":()V
-               |       4: return
-               |
-               |  public final java.lang.String track();
-               |    Code:
-               |       0: ldc           #14                 // String TrackableClass
-               |       2: areturn
-               |}
-               |""".trimMargin("|")
-        )
+        assertExecutionResult(result)
     }
 
     @Test
-    fun `generate the getTrack method bytecode for extended interface`() {
-        val result = compile(givenAnnotatedParentInterface(), givenTrackableClassExtendedParentInterface())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        val bytecode = fileBytecode(
-            result.generatedFiles
-                .first { it.exists() && it.isFile && it.name == "TrackableClass.class" }
+    fun `generate the getTrack method bytecode for double extended class then run`() {
+        val result = compile(
+            givenTrackableClassDoubleExtendedParent(),
+            givenTrackableClassTestToRun()
         )
-        assertThat(bytecode).isEqualTo(
-            """|Compiled from "TrackableClass.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClass implements com.github.hadilq.trackable.compiler.test.Parent {
-               |  public com.github.hadilq.trackable.compiler.test.TrackableClass();
-               |    Code:
-               |       0: aload_0
-               |       1: invokespecial #10                 // Method java/lang/Object."<init>":()V
-               |       4: return
-               |
-               |  public final java.lang.String track();
-               |    Code:
-               |       0: ldc           #16                 // String TrackableClass
-               |       2: areturn
-               |}
-               |""".trimMargin("|")
-        )
+        assertExecutionResult(result)
     }
 
     @Test
-    fun `generate and use the getTrack method`() {
-        val result = compile(givenTrackableClass(), givenTrackableClassTest())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+    fun `generate the getTrack method bytecode for extended interface then run`() {
+        val result = compile(
+            givenTrackableClassExtendedParentInterface(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result)
     }
 
     @Test
-    fun `generate and use the getTrack method bytecode`() {
-        val result = compile(givenTrackableClass(), givenTrackableClassTest())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        val bytecode = fileBytecode(
-            result.generatedFiles
-                .first { it.exists() && it.isFile && it.name == "TrackableClassTest.class" }
-        )
-        assertThat(bytecode).isEqualTo(
-            """|Compiled from "TrackableClassTest.kt"
-               |public final class com.github.hadilq.trackable.compiler.test.TrackableClassTest {
-               |  public static final com.github.hadilq.trackable.compiler.test.TrackableClassTest INSTANCE;
-               |
-               |  static {};
-               |    Code:
-               |       0: new           #2                  // class com/github/hadilq/trackable/compiler/test/TrackableClassTest
-               |       3: dup
-               |       4: invokespecial #25                 // Method "<init>":()V
-               |       7: astore_0
-               |       8: aload_0
-               |       9: putstatic     #27                 // Field INSTANCE:Lcom/github/hadilq/trackable/compiler/test/TrackableClassTest;
-               |      12: new           #29                 // class com/github/hadilq/trackable/compiler/test/TrackableClass
-               |      15: dup
-               |      16: invokespecial #30                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass."<init>":()V
-               |      19: invokevirtual #34                 // Method com/github/hadilq/trackable/compiler/test/TrackableClass.track:()Ljava/lang/String;
-               |      22: astore_1
-               |      23: iconst_0
-               |      24: istore_2
-               |      25: getstatic     #40                 // Field java/lang/System.out:Ljava/io/PrintStream;
-               |      28: aload_1
-               |      29: invokevirtual #46                 // Method java/io/PrintStream.println:(Ljava/lang/Object;)V
-               |      32: return
-               |}
-               |""".trimMargin("|")
-        )
-    }
-
-    @Test
-    fun `generate and use the getTrack method run`() {
+    fun `generate and use the getTrack method then run`() {
         val result = compile(givenTrackableClass(), givenTrackableClassTestToRun())
-        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        val directory =
-            result.generatedFiles.first { it.exists() && it.parentFile.name == "META-INF" }.parentFile.parentFile
-        val output = runFiles(directory, "$trackablePackage.TrackableClassTestKt")
-        assertThat(output).isEqualTo("TrackableClass\n")
+        assertExecutionResult(result)
     }
 
     @Test
@@ -250,7 +144,26 @@ class TrackablePluginTest {
               |import com.github.hadilq.trackable.compiler.test.Trackable
               |import com.github.hadilq.trackable.compiler.test.Parent
               |
+              |@Trackable
+              |open class Parent
+              |
               |class TrackableClass : Parent()
+              |""".trimMargin("|")
+    )
+
+    private fun givenTrackableClassDoubleExtendedParent(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |open class Parent
+              |
+              |open class ParentTrackableClass : Parent()
+              |
+              |class TrackableClass : ParentTrackableClass()
               |""".trimMargin("|")
     )
 
@@ -261,29 +174,10 @@ class TrackablePluginTest {
               |import com.github.hadilq.trackable.compiler.test.Trackable
               |import com.github.hadilq.trackable.compiler.test.Parent
               |
-              |class TrackableClass : Parent
-              |""".trimMargin("|")
-    )
-
-    private fun givenAnnotatedParentClass(): SourceFile = kotlin(
-        "Parent.kt",
-        """   |package com.github.hadilq.trackable.compiler.test
-              |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
-              |
-              |@Trackable
-              |open class Parent
-              |""".trimMargin("|")
-    )
-
-    private fun givenAnnotatedParentInterface(): SourceFile = kotlin(
-        "Parent.kt",
-        """   |package com.github.hadilq.trackable.compiler.test
-              |
-              |import com.github.hadilq.trackable.compiler.test.Trackable
-              |
               |@Trackable
               |interface Parent
+              |
+              |class TrackableClass : Parent
               |""".trimMargin("|")
     )
 
@@ -298,18 +192,6 @@ class TrackablePluginTest {
               |""".trimMargin("|")
     )
 
-    private fun givenTrackableClassTest(): SourceFile = kotlin(
-        "TrackableClassTest.kt",
-        """   |package com.github.hadilq.trackable.compiler.test
-              |
-              |object TrackableClassTest {
-              |    init {
-              |        println(TrackableClass().track())
-              |    }
-              |}
-              |""".trimMargin("|")
-    )
-
     private fun givenTrackableClassTestToRun(): SourceFile = kotlin(
         "TrackableClassTest.kt",
         """   |package com.github.hadilq.trackable.compiler.test
@@ -319,6 +201,14 @@ class TrackablePluginTest {
               |}
               |""".trimMargin("|")
     )
+
+    private fun assertExecutionResult(result: KotlinCompilation.Result, outputString: String = "TrackableClass") {
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+        val directory =
+            result.generatedFiles.first { it.exists() && it.parentFile.name == "META-INF" }.parentFile.parentFile
+        val output = runFiles(directory, "$trackablePackage.TrackableClassTestKt")
+        assertThat(output).isEqualTo("$outputString\n")
+    }
 
     private fun prepareCompilation(vararg sourceFiles: SourceFile): KotlinCompilation {
         return KotlinCompilation()
