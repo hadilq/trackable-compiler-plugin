@@ -71,7 +71,7 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
         val getterName = checkNotNull(actualConfiguration[KEY_GETTER_NAME])
         val trackableAnnotation = checkNotNull(actualConfiguration[KEY_TRACKABLE_ANNOTATION])
         val trackWith = checkNotNull(actualConfiguration[KEY_TRACK_WITH])
-        val fqRedactedAnnotation = FqName(trackableAnnotation)
+        val fqTrackableAnnotation = FqName(trackableAnnotation)
 
         ExpressionCodegenExtension.registerExtensionAsFirst(
             project,
@@ -83,7 +83,7 @@ class TrackableComponentRegistrar constructor() : ComponentRegistrar {
             TrackableSyntheticResolveExtension(
                 messageCollector,
                 Name.identifier(getterName),
-                fqRedactedAnnotation,
+                fqTrackableAnnotation,
                 trackWith
             )
         )

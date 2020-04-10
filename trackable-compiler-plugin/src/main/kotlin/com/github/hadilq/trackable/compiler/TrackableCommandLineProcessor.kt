@@ -33,7 +33,7 @@ internal val KEY_TRACKABLE_ANNOTATION = CompilerConfigurationKey<String>(TRACKAB
 internal val KEY_TRACK_WITH = CompilerConfigurationKey<String>(TRACK_WITH)
 
 @AutoService(CommandLineProcessor::class)
-class RedactedCommandLineProcessor : CommandLineProcessor {
+class TrackableCommandLineProcessor : CommandLineProcessor {
 
     override val pluginId: String = "trackable-compiler-plugin"
 
