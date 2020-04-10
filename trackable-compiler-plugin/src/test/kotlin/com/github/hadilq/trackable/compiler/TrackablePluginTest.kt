@@ -60,19 +60,37 @@ class TrackablePluginTest {
     @Test
     fun `generate the getTrack method bytecode for extended class then run`() {
         val result = compile(
-            givenTrackableClassExtendedParent(),
+            givenTrackableClassExtendedParentClass(),
             givenTrackableClassTestToRun()
         )
         assertExecutionResult(result)
     }
 
     @Test
+    fun `generate the getTrack method bytecode for extended class with annotated track then run`() {
+        val result = compile(
+            givenTrackableClassExtendedParentClassWithAnnotatedTrack(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result, "NotTrackableClass!")
+    }
+
+    @Test
     fun `generate the getTrack method bytecode for double extended class then run`() {
         val result = compile(
-            givenTrackableClassDoubleExtendedParent(),
+            givenTrackableClassDoubleExtendedParentClass(),
             givenTrackableClassTestToRun()
         )
         assertExecutionResult(result)
+    }
+
+    @Test
+    fun `generate the getTrack method bytecode for double extended class with annotated track then run`() {
+        val result = compile(
+            givenTrackableClassDoubleExtendedParentClassWithAnnotatedTrack(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result, "NotTrackableClass!")
     }
 
     @Test
@@ -82,6 +100,51 @@ class TrackablePluginTest {
             givenTrackableClassTestToRun()
         )
         assertExecutionResult(result)
+    }
+
+    @Test
+    fun `generate the getTrack method bytecode for extended interface with annotated track then run`() {
+        val result = compile(
+            givenTrackableClassExtendedParentInterfaceWithAnnotatedTrack(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result, "NotTrackableClass!")
+    }
+
+    @Test
+    fun `generate the getTrack method bytecode for double extended interface then run`() {
+        val result = compile(
+            givenTrackableClassDoubleExtendedParentInterface(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result)
+    }
+
+    @Test
+    fun `generate the getTrack method bytecode for double extended interface with annotated track then run`() {
+        val result = compile(
+            givenTrackableClassDoubleExtendedParentInterfaceWithAnnotatedTrack(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result, "NotTrackableClass!")
+    }
+
+    @Test
+    fun `generate the getTrack method bytecode for double extended interface with a child then run`() {
+        val result = compile(
+            givenTrackableClassExtendedParentInterfaceWithChild(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result)
+    }
+
+    @Test
+    fun `generate the getTrack method bytecode for double extended interface with a child with annotated track then run`() {
+        val result = compile(
+            givenTrackableClassExtendedParentInterfaceWithChildWithAnnotatedTrack(),
+            givenTrackableClassTestToRun()
+        )
+        assertExecutionResult(result, "NotTrackableClass!")
     }
 
     @Test
@@ -137,7 +200,7 @@ class TrackablePluginTest {
               |""".trimMargin("|")
     )
 
-    private fun givenTrackableClassExtendedParent(): SourceFile = kotlin(
+    private fun givenTrackableClassExtendedParentClass(): SourceFile = kotlin(
         "TrackableClass.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
@@ -151,7 +214,22 @@ class TrackablePluginTest {
               |""".trimMargin("|")
     )
 
-    private fun givenTrackableClassDoubleExtendedParent(): SourceFile = kotlin(
+    private fun givenTrackableClassExtendedParentClassWithAnnotatedTrack(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |open class Parent
+              |
+              |@Trackable(trackWith = "NotTrackableClass!")
+              |class TrackableClass : Parent()
+              |""".trimMargin("|")
+    )
+
+    private fun givenTrackableClassDoubleExtendedParentClass(): SourceFile = kotlin(
         "TrackableClass.kt",
         """   |package com.github.hadilq.trackable.compiler.test
               |
@@ -167,6 +245,23 @@ class TrackablePluginTest {
               |""".trimMargin("|")
     )
 
+    private fun givenTrackableClassDoubleExtendedParentClassWithAnnotatedTrack(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |open class Parent
+              |
+              |open class ParentTrackableClass : Parent()
+              |
+              |@Trackable(trackWith = "NotTrackableClass!")
+              |class TrackableClass : ParentTrackableClass()
+              |""".trimMargin("|")
+    )
+
     private fun givenTrackableClassExtendedParentInterface(): SourceFile = kotlin(
         "TrackableClass.kt",
         """   |package com.github.hadilq.trackable.compiler.test
@@ -178,6 +273,87 @@ class TrackablePluginTest {
               |interface Parent
               |
               |class TrackableClass : Parent
+              |""".trimMargin("|")
+    )
+
+    private fun givenTrackableClassExtendedParentInterfaceWithAnnotatedTrack(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |interface Parent
+              |
+              |@Trackable(trackWith = "NotTrackableClass!")
+              |class TrackableClass : Parent
+              |""".trimMargin("|")
+    )
+
+    private fun givenTrackableClassDoubleExtendedParentInterface(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |interface Parent
+              |
+              |open class ParentTrackableClass : Parent
+              |
+              |class TrackableClass : ParentTrackableClass()
+              |""".trimMargin("|")
+    )
+
+    private fun givenTrackableClassDoubleExtendedParentInterfaceWithAnnotatedTrack(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |interface Parent
+              |
+              |open class ParentTrackableClass : Parent
+              |
+              |@Trackable(trackWith = "NotTrackableClass!")
+              |class TrackableClass : ParentTrackableClass()
+              |""".trimMargin("|")
+    )
+
+    private fun givenTrackableClassExtendedParentInterfaceWithChild(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |interface Parent
+              |
+              |open class TrackableClass : Parent
+              |
+              |class ChildTrackableClass : TrackableClass()
+              |""".trimMargin("|")
+    )
+
+    private fun givenTrackableClassExtendedParentInterfaceWithChildWithAnnotatedTrack(): SourceFile = kotlin(
+        "TrackableClass.kt",
+        """   |package com.github.hadilq.trackable.compiler.test
+              |
+              |import com.github.hadilq.trackable.compiler.test.Trackable
+              |import com.github.hadilq.trackable.compiler.test.Parent
+              |
+              |@Trackable
+              |interface Parent
+              |
+              |@Trackable(trackWith = "NotTrackableClass!")
+              |open class TrackableClass : Parent
+              |
+              |class ChildTrackableClass : TrackableClass()
               |""".trimMargin("|")
     )
 
